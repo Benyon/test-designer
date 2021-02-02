@@ -50,10 +50,9 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+	// 404 handling
 	const listOfPages = routes.map(val => val.path.split('/:')[0])
 	const toPath = to.path.toLowerCase().split(/(\/[0-9])/)[0];
-
-	console.log(toPath)
 	if (to.path!='/404' && !listOfPages.includes(toPath)) {
 		next('/404')
 	} else {

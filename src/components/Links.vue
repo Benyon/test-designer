@@ -1,9 +1,10 @@
 <template>
 	<div class="links-wrapper">
 		<router-link v-for="(link, index) in state.links" :to="{name: link, params: {testId: 1}}" :key='index'>
-		[ {{ link.toLowerCase() }} ]
+		{{ link.toLowerCase() }}
 		</router-link>
 	</div>
+
 </template>
 
 <script>
@@ -21,3 +22,17 @@ export default {
 	}
 }
 </script>
+
+<style lang='scss'>
+
+.links-wrapper {
+
+	margin-bottom: 25px;
+
+	a {
+		padding: 0px 25px;
+	}
+}
+
+
+</style>
