@@ -7,7 +7,7 @@
 
 <script>
 import Links from '@/components/Links'
-import { onBeforeMount, onMounted, reactive } from 'vue';
+import { onBeforeMount, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import firebase from 'firebase/app';
 import 'firebase/auth';
@@ -19,9 +19,9 @@ export default {
 		const router = useRouter();
 		const route = useRoute();
 		const state = reactive({
-			loaded: false
-		})
-
+			loaded: true
+        })
+    
 		onBeforeMount(() => {
 			firebase.auth().onAuthStateChanged((user) => {
 
@@ -29,13 +29,11 @@ export default {
 					router.replace('/login')
 				} else if (route.path == '/register' || route.path == '/login') { // Logged in and on the login step pages.
 					router.replace('/account')
-				}
+                }
+                
+                state.loaded = true;
 			})
-		})
-
-		onMounted(() => {
-			state.loaded = true;
-		})
+        })
 
 		return {
 			state

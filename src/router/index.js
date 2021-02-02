@@ -56,8 +56,9 @@ router.beforeEach((to, from, next) => {
 	if (to.path!='/404' && !listOfPages.includes(toPath)) {
 		next('/404')
 	} else {
-		next();
-	}
+        next();
+    }
+    
 })
 
 export default router
