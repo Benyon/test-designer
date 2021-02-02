@@ -36,24 +36,3 @@ export default {
 	}
 }
 </script>
-
-<style lang='scss'>
-
-body {
-	background-color: #d6e3ec;
-	color: #24252a;
-	margin: 0;
-}
-
-a {
-	color: inherit;
-}
-
-#app {
-	font-family: Avenir, Helvetica, Arial, sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
-}
-
-</style>
