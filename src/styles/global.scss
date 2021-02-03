@@ -10,19 +10,32 @@
 }
 
 body {
-    font-size: 1rem;
+    font-size: 0.9rem;
     line-height: 1.5;
-    color: #525f7f;
+    color: #313131;
 	margin: 0;
+    background-color: #f6f6f6;
 }
 
 #app {
 	font-family: Avenir, Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-input:focus {
+input:focus, button:focus {
     outline: none!important;
+}
+
+button {
+    display: inline-block;
+    width: fit-content;
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .2s;
+}
+
+.fade-enter, .fade-leave-to {
+    opacity: 0;
 }
