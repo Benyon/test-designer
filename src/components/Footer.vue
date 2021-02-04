@@ -1,5 +1,5 @@
 <template>
-  <footer>
+  <div class='footer'>
       <div class="container">
           <div class="footer-panel">
               <div class="col">
@@ -24,7 +24,6 @@
                         <li><a href="#">Terms & Conditioins</a></li>
                         <li><a href="#">Privacy Policy</a></li>
                         <li><a href="#">Cookie Policy</a></li>
-                        <li><a href="#">Accessibility</a></li>
                     </ul>
               </div>
                 <div class="col">
@@ -37,28 +36,23 @@
               </div>
           </div>
       </div>
-  </footer>
+  </div>
 </template>
 
 <style lang='scss' scoped>
 
-footer {
+.footer {
 
     padding: 25px;
     border-top: 1px solid rgba(0, 0, 0, .1);
     background-color: white;
-    position: fixed;
     width: 100%;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
+    height: 258px;
 
     .container {
         display: grid;
-
         justify-items: center;
     }
-
 
     .footer-panel {
         display: flex; 
@@ -91,7 +85,5 @@ footer {
     }
 
 }
-
-
 
 </style>

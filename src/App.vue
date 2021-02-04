@@ -1,8 +1,10 @@
 <template>
 	<NavBar :showLinks='state.showLinks' :user='state.user' :loaded='state.loaded'/>
-	<div v-if='state.loaded' class="container">
-        <router-view :user='state.user'/>
-	</div>
+    <div class="content">
+        <div v-if='state.loaded' class="container">
+            <router-view :user='state.user'/>
+        </div>
+    </div>
     <Footer/>
 </template>
 
@@ -27,10 +29,10 @@ export default {
             user: null
         })
 
-        function queryRedirect(user, rawRoute) {
-            if (!user && ['/account', '/library', '/test'].includes(rawRoute)) { // Not logged in and try to land on an auth page.
+        function queryRedirect(rawRoute) {
+            if (!state.user && ['/account', '/library', '/test'].includes(rawRoute)) { // Not logged in and try to land on an auth page.
                 router.replace('/login')
-            } else if (user && (route.path == '/register' || route.path == '/login')) { // Logged in and on the login step pages.
+            } else if (state.user && (route.path == '/register' || route.path == '/login')) { // Logged in and on the login step pages.
                 router.replace('/')
             }
 
@@ -44,7 +46,7 @@ export default {
             async () => {
                 state.user = firebase.auth().currentUser;
                 let rawRoute = CommonUtility.urlTrim(route.path);
-                queryRedirect(state.user, rawRoute);
+                queryRedirect(rawRoute);
             }
         )
 
@@ -52,7 +54,7 @@ export default {
 			firebase.auth().onAuthStateChanged((user) => {
                 let rawRoute = CommonUtility.urlTrim(route.path);
                 state.user = user;
-                queryRedirect(state.user, rawRoute);
+                queryRedirect(rawRoute);
 			})
         })
 
@@ -62,3 +64,14 @@ export default {
 	}
 }
 </script>
+
+
+<style lang="scss" scoped>
+
+.content {
+    padding-top: 2rem;
+    height: 100%;
+    min-height: 95vh;
+}
+
+</style>

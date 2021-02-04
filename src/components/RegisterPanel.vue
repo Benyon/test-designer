@@ -219,6 +219,7 @@ export default {
 
         .control .control-label {
             font-size: 0.9rem;
+            padding-top: 3px;
         }
 
         input {

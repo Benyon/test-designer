@@ -1,6 +1,6 @@
 <template>
   <div class="404">
-    <h1>404</h1>
+    <h1>404: Sorry this page cannot be found</h1>
   </div>
 </template>
 

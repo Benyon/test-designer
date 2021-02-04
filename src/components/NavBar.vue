@@ -10,6 +10,7 @@
                 <div class="navbar__buttons">
                     <div v-if='loaded' class="wrapper">
                         <div v-if='!user' class="not-logged-in">
+                            <button class='debug' @click='output'>Log Debug to Console</button>
                             <router-link :to="{name: 'Login'}">
                                 <button type='button' class="button button-primary" :class='{"button-border": urlPath==="/" }'>Login</button>
                             </router-link>
@@ -19,6 +20,7 @@
                         </div>
                         
                         <div v-if='user' class="logged-in">
+                            <button class='debug' @click='output'>Log Debug to Console</button>
                             <router-link :to="{name: 'Account'}">
                                 <button type='button' class="button button-secondary">Profile</button>
                             </router-link>
@@ -44,13 +46,12 @@
 import { computed, reactive } from 'vue'
 import firebase from 'firebase/app'
 import { useRouter, useRoute } from 'vue-router';
-
 import 'firebase/auth'
 
 export default {
     props: ['showLinks', 'user', 'loaded'],
     
-	setup() {
+	setup(ctx, props) {
 		const router = useRouter();
 		const route = useRoute();
 		const state = reactive({
@@ -60,6 +61,10 @@ export default {
         const urlPath = computed(()=>{
             return route.fullPath;
         })
+
+        function output() {
+            console.log(props.props.user)
+        }
 
         function signOut() {
             firebase
@@ -76,7 +81,8 @@ export default {
 		return {
             state,
             signOut,
-            urlPath
+            urlPath,
+            output
 		}
 	}
 }
@@ -84,9 +90,15 @@ export default {
 
 <style lang='scss'>
 
+button.debug{
+    opacity: 0;
+    &:hover{
+        opacity: 1!important;
+    }
+}
+
 .links-wrapper {
 
-	margin-bottom: 2rem;
     border-bottom: 1px solid rgba(0, 0, 0, .1);
     background-color: white;
 
