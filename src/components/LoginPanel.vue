@@ -5,31 +5,50 @@
                 <div class="loader space-xxl spinner spinner-xs"></div> 
             </div>
             <div class='login-panel__form' :fade="!state.show">
-                <h2>Login</h2>
-                <form role="form">
-                    <p class='form-message error' v-for="(error, index) in state.errors" :key='index'>{{error}}</p>
-                    <p class="field">
-                        <label class="form-message" for="fieldset-email">Email</label>
-                        <input type="email" id="fieldset-email" v-model='state.email' placeholder="Enter Email" @input="update">
-                    </p>
-                    <p class="field">
-                        <label class="form-message" for="fieldset-password">Password</label>
-                        <input type="password" id="fieldset-password" v-model='state.password' placeholder="Enter Password" @input="update" >
-                    </p>
+                <div v-if='!state.isResetingPassword' id="login">
+                    <h2>Login</h2>
+                    <form role="form" @submit.prevent="logIn">
+                        <p class='form-message error' v-for="(error, index) in state.errors" :key='index'>{{error}}</p>
+                        <input type='hidden' id='dummy' autofocus='true'>
+                        <p class="field">
+                            <label class="form-message" for="fieldset-email">Email</label>
+                            <input type="email" id="fieldset-email" v-model='state.email' validate placeholder="Enter Email" @input="update">
+                        </p>
+                        <p class="field">
+                            <label class="form-message" for="fieldset-password">Password</label>
+                            <input type="password" id="fieldset-password" v-model='state.password' validate placeholder="Enter Password" @input="update" >
+                        </p>
 
-                    <label class="control checkbox info">
-                        <input type="checkbox" name="checkbox" checked="">
-                        <span class="control-indicator"></span>
-                        <span class="control-label">Remember me</span>
-                    </label>
+                        <label class="control checkbox info">
+                            <input type="checkbox" name="checkbox" validate checked="">
+                            <span class="control-indicator"></span>
+                            <span class="control-label">Remember me</span>
+                        </label>
 
-                    <p class="field">
-                        <button type="submit" class="button" @click.prevent="logIn">Log In</button>
-                        <a class='forget' href="#">
-                            <span><em>Forgot password?</em></span>
-                        </a>
-                    </p>
-                </form>
+                        <p class="field">
+                            <button type="submit" class="button">Log In</button>
+                            <a class='forget' href="#" @click.prevent="state.isResetingPassword = true; state.email=''">
+                                <span><em>Forgot password?</em></span>
+                            </a>
+                        </p>
+                    </form>
+                </div>
+                <div v-if='state.isResetingPassword' class="forgot-password">
+                    <h2>Forgot Password</h2>
+                    <form role="form" @submit.prevent="forgotPassword">
+                        <p class='form-message error' v-for="(error, index) in state.errors" :key='index'>{{error}}</p>
+                        <p class="field">
+                            <label class="form-message" for="fieldset-email">Email</label>
+                            <input type="email" id="fieldset-email" v-model='state.email' validate placeholder="Enter Email" @input="update">
+                        </p>
+                        <p class="field">
+                            <button type="submit" class="button">Forgot my Password</button>
+                            <a class='back' href="#" @click.prevent="state.isResetingPassword = false; state.email=''">
+                                <span><em>Back</em></span>
+                            </a>
+                        </p>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -37,8 +56,12 @@
 
 
 <script>
-import { onMounted, reactive } from 'vue';
-import { RegexMatches } from '../assets/regex.js'
+import { reactive } from 'vue';
+import { RegexMatches } from '../assets/regex.js';
+import { locale } from '../assets/responses'
+import firebase from 'firebase/app';
+import 'firebase/auth'
+
 export default {
  
     setup() {
@@ -46,6 +69,7 @@ export default {
             loading: false,
             show: true,
             error: false,
+            isResetingPassword: false,
             email: '',
             password: '',
             validationElements: [],
@@ -53,18 +77,55 @@ export default {
             errors: [],
         })
 
-        function apiCallback() {
-            setTimeout(() => {
-                state.loading = false;
-                state.show = true;
-                state.errors.push('Incorrect usename or password.')
-            }, 1000)
-        }
-
         function setValidationError(element) {
             state.validationError = true;
             element.classList.add('error');
             element.parentElement.querySelector('label').classList.add('error');
+        }
+
+        function firebaseAuthCallback(data, err = false) {
+            state.isResetingPassword = false;
+            state.loading = false;
+            state.show = true;
+            if (err) {
+                let errorCode = locale.en[data.code] ? locale.en[data.code] : data.message
+                state.errors.push(errorCode);
+                return;
+            }
+        }
+
+        function validateFields() {
+           document.querySelectorAll('*[validate]').forEach(element => {
+                if (element.value.length===0) {
+                    setValidationError(element);
+                }
+                if (element.getAttribute('type') === 'email' && !RegexMatches.emailRegex.test(state.email)) {
+                    setValidationError(element);
+                }
+            });
+        }
+
+        function forgotPassword() {
+            // Clear errors.
+            state.errors = [];
+            state.validationError = false;
+
+            // Check each validation element.
+            validateFields()
+
+            // Stop flow is there's an error.
+            if (state.validationError) return;
+
+            // Transition elements and send API request if no errors.
+            state.show = false;
+            state.loading = true;
+
+            firebase.
+                auth()
+                .sendPasswordResetEmail(state.email)
+                .then(firebaseAuthCallback
+                )
+                .catch(err => firebaseAuthCallback(err, true))
         }
 
         function logIn() {
@@ -73,14 +134,7 @@ export default {
             state.validationError = false;
 
             // Check each validation element.
-            state.validationElements.forEach(element => {
-                if (element.value.length===0) {
-                    setValidationError(element);
-                }
-                if (element.getAttribute('type') === 'email' && !RegexMatches.emailRegex.test(state.email)) {
-                    setValidationError(element);
-                }
-            });
+            validateFields()
 
             // Stop flow is there's an error.
             if (state.validationError) return;
@@ -88,7 +142,13 @@ export default {
             // Transition elements and send API request if no errors.
             state.show = false;
             state.loading = true;
-            apiCallback()
+            
+            firebase
+                .auth()
+                .signInWithEmailAndPassword(state.email, state.password)
+                .then(firebaseAuthCallback
+                )
+                .catch(err => firebaseAuthCallback(err, true))
         }
 
         function update(t) {
@@ -107,15 +167,12 @@ export default {
                 }
             }
         }
-        
-        onMounted(() => {
-            state.validationElements = document.querySelectorAll('.field > input');
-        })
 
         return {
             state,
             logIn,
-            update
+            update,
+            forgotPassword
         }
         
     }
@@ -170,11 +227,12 @@ export default {
             font-size: 0.9rem;
         }
 
-        a.forget {
+        a.forget, a.back {
             margin: 0px 8px;
             padding: 0px 2px;
             font-size: 0.9rem;
             opacity: 0.5;
+            text-decoration: none; 
         }
 
         input {

@@ -6,7 +6,7 @@
             </div>
             <div class='register-panel__form' :fade="!state.show">
                 <h2>Register</h2>
-                <form role="form">
+                <form role="form" @submit.prevent="signUp">
                     <p class='form-message error' v-for="(error, index) in state.errors" :key='index'>{{error}}</p>
                     <div class="name-fields">
                         <p class="field">
@@ -20,7 +20,7 @@
                     </div>
                     <p class="field">
                         <label class="form-message" for="fieldset-email">Email</label>
-                        <input type="email" id="fieldset-email" v-model='state.email' placeholder="Enter Email" @input="update">
+                        <input type="email" id="fieldset-email" v-model='state.email' placeholder="Enter Email" @input="update" readonly onfocus="this.removeAttribute('readonly');">
                     </p>
                     <p class="field">
                         <label class="form-message" for="fieldset-password">Password</label>
@@ -37,7 +37,7 @@
                     </label>
 
                     <p class="field">
-                        <button type="submit" class="button" @click.prevent="signUp">Sign Up</button>
+                        <button type="submit" class="button">Sign Up</button>
                     </p>
                 </form>
             </div>
@@ -49,6 +49,9 @@
 <script>
 import { onMounted, reactive } from 'vue';
 import { RegexMatches } from '../assets/regex';
+import { locale } from '../assets/responses'
+import firebase from 'firebase/app'
+import 'firebase/auth'
 
 export default {
  
@@ -67,12 +70,15 @@ export default {
             errors: []
         })
 
-        function apiCallback() {
-            setTimeout(() => {
-                state.loading = false;
-                state.show = true;
-                state.errors.push('Incorrect usename or password.')
-            }, 1000)
+        function firebaseAuthCallback(data, err = false) {
+            state.loading = false;
+            state.show = true;
+            if (err) {
+                let errorCode = locale.en[data.code] ? locale.en[data.code] : data.message
+                state.errors.push(errorCode);
+                return;
+            }
+            console.log(data);
         }
 
         function setValidationError(element, sendErrorToLabel = true) {
@@ -110,7 +116,12 @@ export default {
             // Transition elements and send API request if no errors.
             state.show = false;
             state.loading = true;
-            apiCallback();
+            
+            firebase
+                .auth()
+                .createUserWithEmailAndPassword(state.email, state.password)
+                .then(firebaseAuthCallback)
+                .catch(err => firebaseAuthCallback(err, true))
         }
 
         function update(t) {
