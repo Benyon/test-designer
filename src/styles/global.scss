@@ -23,19 +23,11 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-input:focus, button:focus {
+input:focus, button:focus, span:focus, label:focus {
     outline: none!important;
 }
 
 button {
     display: inline-block;
     width: fit-content;
-}
-
-.fade-enter-active, .fade-leave-active {
-    transition: opacity .2s;
-}
-
-.fade-enter, .fade-leave-to {
-    opacity: 0;
 }

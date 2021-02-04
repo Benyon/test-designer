@@ -1,7 +1,7 @@
 <template>
 	<NavBar :showLinks='state.showLinks'/>
 	<div class="container">
-        <router-view :loaded="state.loaded"/>
+        <router-view/>
 	</div>
 </template>
 
@@ -31,7 +31,7 @@ export default {
                 } else if (user && (route.path == '/register' || route.path == '/login')) { // Logged in and on the login step pages.
 					router.replace('/account')
                 }
-                //state.loaded = true;
+                state.loaded = true;
 			})
         })
 

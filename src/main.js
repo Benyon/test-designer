@@ -4,7 +4,6 @@ import router from './router'
 import store from './store'
 import firebase from 'firebase/app';
 import './styles/global.scss';
-import DisableAutocomplete from 'vue-disable-autocomplete';
 
 const firebaseConfig = {
     apiKey: "AIzaSyAvAmlU_4vJVaQVIEKkOsn7GjL9CT0XN2Q",
@@ -17,4 +16,4 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-createApp(App).use(store).use(router).use(DisableAutocomplete).mount('#app')
+createApp(App).use(store).use(router).mount('#app')

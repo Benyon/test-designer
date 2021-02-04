@@ -1,5 +1,12 @@
 <template>
   <div class="404">
-    <h1>OOPSIE WOOPSIE!! Uwu We make a fucky wucky!! A wittle fucko boingo! The code monkeys at our headquarters are working VEWY HAWD to fix this!</h1>
+    <h1>404</h1>
   </div>
 </template>
+
+<style lang="scss" scoped>
+h1 {
+    text-align: center;
+    margin-top: 50px;
+}
+</style>

@@ -9,10 +9,10 @@
                 </div>
                 <div class="navbar__buttons">
                     <router-link :to="{name: 'Login'}">
-                        <button class="button button-primary button-border">Login</button>
+                        <button type='button' class="button button-primary button-border">Login</button>
                     </router-link>
                     <router-link :to="{name: 'Register'}">
-                        <button class="button button-primary button-border">Register</button>
+                        <button type='button' class="button button-primary button-border">Register</button>
                     </router-link>
                 </div>
             </div>
