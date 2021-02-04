@@ -11,7 +11,7 @@
 <script>
 import Footer from '@/components/Footer'
 import NavBar from '@/components/NavBar'
-import { onBeforeMount, reactive, watch } from 'vue';
+import { onMounted, reactive, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { CommonUtility } from './assets/common'
 import firebase from 'firebase/app';
@@ -44,16 +44,17 @@ export default {
         watch(
             () => route.params,
             async () => {
+                if (!state.loaded) return
                 state.user = firebase.auth().currentUser;
                 let rawRoute = CommonUtility.urlTrim(route.path);
                 queryRedirect(rawRoute);
             }
         )
 
-		onBeforeMount(() => {
+		onMounted(() => {
 			firebase.auth().onAuthStateChanged((user) => {
                 let rawRoute = CommonUtility.urlTrim(route.path);
-                state.user = user;
+                state.user = user
                 queryRedirect(rawRoute);
 			})
         })
@@ -71,7 +72,7 @@ export default {
 .content {
     padding-top: 2rem;
     height: 100%;
-    min-height: 95vh;
+    min-height: calc(95vh - 120px);
 }
 
 </style>

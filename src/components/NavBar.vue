@@ -7,10 +7,10 @@
                         <span class="title">Test Designer</span>
                     </router-link>
                 </div>
+                <button class='debug' style='margin-left: 15px;' @click='output'>⚙️</button>
                 <div class="navbar__buttons">
                     <div v-if='loaded' class="wrapper">
                         <div v-if='!user' class="not-logged-in">
-                            <button class='debug' @click='output'>Log Debug to Console</button>
                             <router-link :to="{name: 'Login'}">
                                 <button type='button' class="button button-primary" :class='{"button-border": urlPath==="/" }'>Login</button>
                             </router-link>
@@ -20,7 +20,6 @@
                         </div>
                         
                         <div v-if='user' class="logged-in">
-                            <button class='debug' @click='output'>Log Debug to Console</button>
                             <router-link :to="{name: 'Account'}">
                                 <button type='button' class="button button-secondary">Profile</button>
                             </router-link>
@@ -63,7 +62,7 @@ export default {
         })
 
         function output() {
-            console.log(props.props.user)
+            console.log(props.props.user ? props.props.user.uid : 'no user')
         }
 
         function signOut() {
@@ -75,7 +74,7 @@ export default {
                 })
                 .catch(() => {
                     router.replace('/')
-                })
+                });
         }
 
 		return {

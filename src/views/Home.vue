@@ -1,6 +1,7 @@
 <template>
   <div class="home">
-    <h1>We are currently under BETA right now.</h1>
+    <img style='width: 25%' src='../../public/under-construction.png'>
+    <h1>We are currently in development.</h1>
     <p class='slim'>Test Designer an interactive UI component to be used before intergrating any automated tests</p>
     <div v-if='!user' class="cta">
         <router-link :to="{name: 'Login'}">

@@ -1,46 +1,71 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue';
+const DEFAULT_TITLE = "Test Designer";
 
 const routes = [
 	{
 		path: '/',
 		name: 'Home',
-		component: Home
+        component: Home,
+        meta: {
+            title: 'Test Designer - Home'
+        }
 	},
 	{
 		path: '/about',
 		name: 'About',
-		component: () => import('../views/About.vue')
+        component: () => import('../views/About.vue'),
+        meta: {
+            title: 'Test Designer - About'
+        }
 	},
 	{
 		path: '/login',
 		name: 'Login',
-		component: () => import('../views/Login.vue')
+		component: () => import('../views/Login.vue'),
+        meta: {
+            title: 'Test Designer - Login'
+        }
 	},
 	{
 		path: '/account',
 		name: 'Account',
-		component: () => import('../views/Account.vue')
+		component: () => import('../views/Account.vue'),
+        meta: {
+            title: 'Test Designer - My Account'
+        }
 	},
 	{
 		path: '/library',
 		name: 'Library',
-		component: () => import('../views/Library.vue')
+		component: () => import('../views/Library.vue'),
+        meta: {
+            title: 'Test Designer - My Library'
+        }
 	},
 	{
 		path: '/register',
 		name: 'Register',
-		component: () => import('../views/Register.vue')
+		component: () => import('../views/Register.vue'),
+        meta: {
+            title: 'Test Designer - Register'
+        }
 	},
 	{
 		path: '/test/:testId',
 		name: 'Test',
-		component: () => import('../views/Test.vue')
+		component: () => import('../views/Test.vue'),
+        meta: {
+            title: 'Test Designer - Test:testId'
+        }
 	},
 	{
 		path: '/404',
 		name: '404',
-		component: () => import('../views/404.vue')
+		component: () => import('../views/404.vue'),
+        meta: {
+            title: 'Test Designer - 404'
+        }
 	}
 ]
 
@@ -58,7 +83,10 @@ router.beforeEach((to, from, next) => {
 	} else {
         next();
     }
-    
+})
+
+router.afterEach((to) => {
+    document.title = to.meta.title || DEFAULT_TITLE;
 })
 
 export default router

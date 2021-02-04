@@ -4,7 +4,6 @@
     <p>Hello Jordan, you can manage your profile settings from here.</p>
 
     <div class="panel-container">
-
         <div v-on:click="expand" panelName="preferences" class="panel expandable preferences-panel" :expanded='state.expanded.preferences ? true : false'>
             <h4>Peferences<em>click to expand</em></h4>
             <div class="panel-container__contents-wrapper">
