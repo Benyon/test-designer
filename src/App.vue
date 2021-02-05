@@ -67,7 +67,11 @@ export default {
 </script>
 
 
-<style lang="scss" scoped>
+<style lang="scss">
+
+body {
+    background-image: url('../public/dot_bkg.png');
+}
 
 .content {
     padding-top: 2rem;

@@ -77,7 +77,7 @@ export default {
         font-weight: 600;
 
         &:not(:focus) {
-            background: #f6f6f6;
+            background: #f6f6f600;
             border-color: #f6f6f6;
         }
     }
