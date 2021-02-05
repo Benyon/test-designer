@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <img style='width: 25%' src='../../public/under-construction.png'>
+    <img style='width: 25%' src='~@/assets/images/under-construction.png'>
     <h1>We are currently in development.</h1>
     <p class='slim'>Test Designer an interactive UI component to be used before intergrating any automated tests</p>
     <div v-if='!user' class="cta">

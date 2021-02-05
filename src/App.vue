@@ -69,11 +69,8 @@ export default {
 
 <style lang="scss">
 
-body {
-    background-image: url('../public/dot_bkg.png');
-}
-
 .content {
+    background-image: url('~@/assets/images/dot_bkg.png');
     padding-top: 2rem;
     height: 100%;
     min-height: calc(97vh - 120px);
