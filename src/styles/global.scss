@@ -22,6 +22,7 @@ body {
 	-webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     height: 100%;
+    background-image: url('~@/assets/images/dot_bkg.png');
 }
 
 input:focus, button:focus, span:focus, label:focus {
