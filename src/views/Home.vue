@@ -16,6 +16,9 @@
         <router-link :to="{name: 'Library'}">
             <button type='button' class="button button-secondary">View Tests</button>
         </router-link>
+        <router-link :to="{name: 'StepsLibrary'}">
+            <button type='button' class="button button-secondary">View Test Steps</button>
+        </router-link>
     </div>
   </div>
 </template>

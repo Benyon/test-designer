@@ -43,6 +43,14 @@ const routes = [
             title: 'Test Designer - My Library'
         }
 	},
+    {
+		path: '/steps-library',
+		name: 'StepsLibrary',
+		component: () => import('../views/StepsLibrary.vue'),
+        meta: {
+            title: 'Test Designer - My Steps Library'
+        }
+	},
 	{
 		path: '/register',
 		name: 'Register',

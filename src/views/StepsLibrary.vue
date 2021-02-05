@@ -1,8 +1,8 @@
 <template>
-  <div v-if='state.loaded' class="library">
+  <div v-if='state.loaded' class="steps">
     <div class="header-container">
-        <h1>My Library</h1>
-        <button class='button button-secondary'>Create New Test</button>   
+        <h1>My Steps Library</h1>
+        <button class='button button-secondary'>Create New Test Step</button>   
     </div>
 
     <div v-if='state.testCatagories.length===0' class="no-tests">
