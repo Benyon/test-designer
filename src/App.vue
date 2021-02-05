@@ -76,7 +76,7 @@ body {
 .content {
     padding-top: 2rem;
     height: 100%;
-    min-height: calc(95vh - 120px);
+    min-height: calc(97vh - 120px);
 }
 
 </style>
