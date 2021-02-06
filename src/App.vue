@@ -1,5 +1,5 @@
 <template>
-	<NavBar :showLinks='state.showLinks' :user='state.user' :loaded='state.loaded'/>
+	<NavBar :showLinks='state.showLinks' :user='state.user' :uid='state.uid' :authorised='authorised' :loaded='state.loaded'/>
     <div class="content">
         <div v-if='state.loaded' class="container">
             <router-view :user='state.user'/>
@@ -11,7 +11,7 @@
 <script>
 import Footer from '@/components/Footer'
 import NavBar from '@/components/NavBar'
-import { onMounted, reactive, watch } from 'vue';
+import { computed, onMounted, reactive, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { CommonUtility } from './assets/common'
 import firebase from 'firebase/app';
@@ -26,7 +26,12 @@ export default {
 		const state = reactive({
             loaded: false,
             showLinks: false,
-            user: null
+            user: null,
+            uid: null
+        })
+
+        const authorised = computed(() => {
+            return (state.user!=null && state.uid!=null);
         })
 
         function queryRedirect(rawRoute) {
@@ -54,13 +59,15 @@ export default {
 		onMounted(() => {
 			firebase.auth().onAuthStateChanged((user) => {
                 let rawRoute = CommonUtility.urlTrim(route.path);
-                state.user = user
+                state.user = user;
+                state.uid = user ? user.uid : null;
                 queryRedirect(rawRoute);
 			})
         })
 
 		return {
-            state
+            state,
+            authorised
 		}
 	}
 }
@@ -70,7 +77,6 @@ export default {
 <style lang="scss">
 
 .content {
-    background-image: url('~@/assets/images/dot_bkg.png');
     padding-top: 2rem;
     height: 100%;
     min-height: calc(97vh - 120px);

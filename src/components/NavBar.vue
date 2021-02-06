@@ -48,9 +48,9 @@ import { useRouter, useRoute } from 'vue-router';
 import 'firebase/auth'
 
 export default {
-    props: ['showLinks', 'user', 'loaded'],
+    props: ['showLinks', 'user', 'uid', 'authorised', 'loaded'],
     
-	setup(ctx, props) {
+	setup(props) {
 		const router = useRouter();
 		const route = useRoute();
 		const state = reactive({
@@ -62,7 +62,8 @@ export default {
         })
 
         function output() {
-            console.log(props.props.user ? props.props.user.uid : 'no user')
+            console.log(`UID: ${props.uid}`);
+            console.log(`Authorised: ${props.authorised}`);
         }
 
         function signOut() {
