@@ -1,6 +1,7 @@
 export const locale = {
     en : {
-        "auth/user-not-found": "That username cannot be found.",
-        "auth/wrong-password": "Incorrect password or username."
+        default: "Something terrible happened behind the scenes.",
+        400: "Bad request, please contact administrator.",
+        409: "Email already exists"
     }
 }

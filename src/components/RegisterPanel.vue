@@ -50,12 +50,15 @@
 import { onMounted, reactive } from 'vue';
 import { RegexMatches } from '../assets/regex';
 import { locale } from '../assets/responses'
-import firebase from 'firebase/app'
-import 'firebase/auth'
+import { CommonUtility } from '../assets/common'
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 export default {
  
     setup() {
+        const store = useStore();
+        const router = useRouter();
         const state = reactive({
             loading: false,
             show: true,
@@ -70,15 +73,30 @@ export default {
             errors: []
         })
 
-        function firebaseAuthCallback(data, err = false) {
+        async function authorisationCallback(data, err = false) {
+            if (!err) {
+                let responseJson = await data.json();
+                const token = responseJson['token'];
+                const user = responseJson['user'];
+
+                localStorage.token = token;
+                localStorage.user = user;
+                store.dispatch('LOG_IN');
+                router.replace('/account');
+
+            } else  {
+                let errorCode = locale.en.default;
+                if (data.status == 400) {
+                    errorCode = await data.text()
+                } else {
+                    errorCode = locale.en[data.status] ? locale.en[data.status] : data.statusText
+                }
+                state.errors.push(errorCode);
+
+            }
+            state.isResetingPassword = false;
             state.loading = false;
             state.show = true;
-            if (err) {
-                let errorCode = locale.en[data.code] ? locale.en[data.code] : data.message
-                state.errors.push(errorCode);
-                return;
-            }
-            console.log(data);
         }
 
         function setValidationError(element, sendErrorToLabel = true) {
@@ -117,11 +135,19 @@ export default {
             state.show = false;
             state.loading = true;
             
-            firebase
-                .auth()
-                .createUserWithEmailAndPassword(state.email, state.password)
-                .then(firebaseAuthCallback)
-                .catch(err => firebaseAuthCallback(err, true))
+            fetch(CommonUtility.config.api.BASE_URL + "/users/register", {
+                method: 'post',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    firstName: state.firstname,
+                    lastName: state.lastname,
+                    email: state.email,
+                    password: state.password,
+                    c_password: state.confirmpassword
+                })
+            })
+            .then(res => authorisationCallback(res, !res.ok))
+            .catch(err => authorisationCallback(err, true))
         }
 
         function update(t) {

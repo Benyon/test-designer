@@ -3,7 +3,7 @@
     <img style='width: 25%' src='~@/assets/images/under-construction.png'>
     <h1>We are currently in development.</h1>
     <p class='slim'>Test Designer an interactive UI component to be used before intergrating any automated tests</p>
-    <div v-if='!user' class="cta">
+    <div v-if='!signedIn' class="cta">
         <router-link :to="{name: 'Login'}">
             <button type='button' class="button button-primary">Login</button>
         </router-link>
@@ -12,7 +12,7 @@
         </router-link>
     </div>
 
-    <div v-if='user' class="options">
+    <div v-if='signedIn' class="options">
         <router-link :to="{name: 'Library'}">
             <button type='button' class="button button-secondary">View Tests</button>
         </router-link>
@@ -25,7 +25,7 @@
 
 <script>
 export default {
-    props: ['user']
+    props: ['signedIn']
 }
 </script>
 

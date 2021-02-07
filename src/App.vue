@@ -1,8 +1,8 @@
 <template>
-	<NavBar :showLinks='state.showLinks' :user='state.user' :uid='state.uid' :authorised='authorised' :loaded='state.loaded'/>
+	<NavBar :showLinks='state.showLinks' :signedIn='state.signedIn' :loaded='state.loaded'/>
     <div class="content">
-        <div v-if='state.loaded' class="container">
-            <router-view :user='state.user'/>
+        <div class="container">
+            <router-view :signedIn='state.signedIn'/>
         </div>
     </div>
     <Footer/>
@@ -11,63 +11,40 @@
 <script>
 import Footer from '@/components/Footer'
 import NavBar from '@/components/NavBar'
-import { computed, onMounted, reactive, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { CommonUtility } from './assets/common'
-import firebase from 'firebase/app';
-import 'firebase/auth';
+import { onMounted, reactive, watch } from 'vue';
+import { useStore } from 'vuex'
 
 export default {
     components: { NavBar, Footer },
-
 	setup() {
-		const router = useRouter();
-		const route = useRoute();
+        const store = useStore();
 		const state = reactive({
-            loaded: false,
             showLinks: false,
-            user: null,
-            uid: null
+            signedIn: false,
+            loaded: false,
+            pls: null
         })
 
-        const authorised = computed(() => {
-            return (state.user!=null && state.uid!=null);
-        })
-
-        function queryRedirect(rawRoute) {
-            if (!state.user && ['/account', '/library', '/test'].includes(rawRoute)) { // Not logged in and try to land on an auth page.
-                router.replace('/login')
-            } else if (state.user && (route.path == '/register' || route.path == '/login')) { // Logged in and on the login step pages.
-                router.replace('/')
-            }
-
-            setTimeout(()=>{
+        function delayLoad() {
+            setTimeout( () => {
                 state.loaded = true;
-            }, 300)
+                state.pls = localStorage.token
+            }, 200)
         }
 
-        watch(
-            () => route.params,
-            async () => {
-                if (!state.loaded) return
-                state.user = firebase.auth().currentUser;
-                let rawRoute = CommonUtility.urlTrim(route.path);
-                queryRedirect(rawRoute);
+        watch( 
+            () => store.state.loggedIn,
+            is => {
+                state.signedIn = is;
             }
         )
 
-		onMounted(() => {
-			firebase.auth().onAuthStateChanged((user) => {
-                let rawRoute = CommonUtility.urlTrim(route.path);
-                state.user = user;
-                state.uid = user ? user.uid : null;
-                queryRedirect(rawRoute);
-			})
+        onMounted(() => {
+            delayLoad();
         })
 
 		return {
-            state,
-            authorised
+            state
 		}
 	}
 }

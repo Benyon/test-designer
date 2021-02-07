@@ -1,19 +1,35 @@
 import { createStore } from 'vuex'
 
 export default createStore({
-  state: {
+    state: {
+        loggedIn: false
+    },
 
-  },
+    mutations: {
 
-  mutations: {
-    
-  },
+        logIn(state) {
+            state.loggedIn = true;
+        },
 
-  actions: {
+        logOut(state) {
+            state.loggedIn = false;
+        }
 
-  },
+    },
 
-  modules: {
+    actions: {
 
-  }
+        LOG_IN({commit}) {
+            commit('logIn');
+        },
+
+        LOG_OUT({commit}) {
+            commit('logOut');
+        }
+        
+    },
+
+    modules: {
+
+    }
 })

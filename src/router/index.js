@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { CommonUtility } from '../assets/common'
 import Home from '../views/Home.vue';
+import store from '../store'
+
 const DEFAULT_TITLE = "Test Designer";
 
 const routes = [
@@ -24,7 +27,8 @@ const routes = [
 		name: 'Login',
 		component: () => import('../views/Login.vue'),
         meta: {
-            title: 'Test Designer - Login'
+            title: 'Test Designer - Login',
+            guestOnly: true
         }
 	},
 	{
@@ -32,7 +36,8 @@ const routes = [
 		name: 'Account',
 		component: () => import('../views/Account.vue'),
         meta: {
-            title: 'Test Designer - My Account'
+            title: 'Test Designer - My Account',
+            requiresLogin: true
         }
 	},
 	{
@@ -40,7 +45,8 @@ const routes = [
 		name: 'Library',
 		component: () => import('../views/Library.vue'),
         meta: {
-            title: 'Test Designer - My Library'
+            title: 'Test Designer - My Library',
+            requiresLogin: true
         }
 	},
     {
@@ -48,7 +54,8 @@ const routes = [
 		name: 'StepsLibrary',
 		component: () => import('../views/StepsLibrary.vue'),
         meta: {
-            title: 'Test Designer - My Steps Library'
+            title: 'Test Designer - My Steps Library',
+            requiresLogin: true
         }
 	},
 	{
@@ -56,7 +63,8 @@ const routes = [
 		name: 'Register',
 		component: () => import('../views/Register.vue'),
         meta: {
-            title: 'Test Designer - Register'
+            title: 'Test Designer - Register',
+            guestOnly: true
         }
 	},
 	{
@@ -64,7 +72,8 @@ const routes = [
 		name: 'Test',
 		component: () => import('../views/Test.vue'),
         meta: {
-            title: 'Test Designer - Test:testId'
+            title: 'Test Designer - Test:testId',
+            requiresLogin: true
         }
 	},
 	{
@@ -77,19 +86,57 @@ const routes = [
 	}
 ]
 
+async function getAuthorised() {
+    
+    if (localStorage.token != 'null') {
+
+        const result = await fetch(CommonUtility.config.api.BASE_URL + '/users/me', {
+            method: 'get',
+            headers: {
+                'Authorization': `Bearer ${ localStorage.token }`
+            }
+        }); 
+
+        // Check token is valid for who you are.
+
+        store.dispatch('LOG_IN');
+        return {
+            authorised: result.ok,
+            user: result
+        }
+    }
+
+    return {
+        authorised: false,
+        user: null
+    };
+
+}
+
 const router = createRouter({
 	history: createWebHistory(process.env.BASE_URL),
 	routes
 })
 
-router.beforeEach((to, from, next) => {
-	// 404 handling
+router.beforeEach(async (to, from, next) => {
+
+    const user = await getAuthorised();
+    if (!user.authorised) {
+        localStorage.token = null;
+    }
+
 	const listOfPages = routes.map(val => val.path.split('/:')[0])
-	const toPath = to.path.toLowerCase().split(/(\/[0-9])/)[0];
+	const toPath = CommonUtility.urlTrim(to.path)
 	if (to.path!='/404' && !listOfPages.includes(toPath)) {
 		next('/404')
 	} else {
-        next();
+        if (to.matched.some(record => record.meta.requiresLogin) && !user.authorised ) {
+            next('/login')
+        } else if (to.matched.some(record => record.meta.guestOnly) && user.authorised ) {
+            next('/account')
+        } else {
+            next()
+        }
     }
 })
 

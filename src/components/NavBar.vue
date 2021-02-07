@@ -10,7 +10,7 @@
                 <button class='debug' style='margin-left: 15px;' @click='output'>⚙️</button>
                 <div class="navbar__buttons">
                     <div v-if='loaded' class="wrapper">
-                        <div v-if='!user' class="not-logged-in">
+                        <div v-if='!signedIn' class="not-logged-in">
                             <router-link :to="{name: 'Login'}">
                                 <button type='button' class="button button-primary" :class='{"button-border": urlPath==="/" }'>Login</button>
                             </router-link>
@@ -19,11 +19,11 @@
                             </router-link>
                         </div>
                         
-                        <div v-if='user' class="logged-in">
+                        <div v-if='signedIn' class="logged-in">
                             <router-link :to="{name: 'Account'}">
                                 <button type='button' class="button button-secondary">Profile</button>
                             </router-link>
-                            <a v-if='user' href="#">
+                            <a v-if='signedIn' href="#">
                                 <button type='button' class='button-secondary button-border' @click.prevent='signOut'>Sign Out</button>
                             </a>
                         </div>
@@ -35,7 +35,7 @@
 
     <div v-if='showLinks' class="container links">
         <router-link v-for="(link, index) in state.links" :to="{name: link, params: {testId: 1}}" :key='index'>
-        {{ link.toLowerCase() }} {{ ["Library","Test", "Account"].includes(link) ? '🔒' : '' }}
+        {{ link.toLowerCase() }} {{ ["Library", "Account"].includes(link) ? '🔒' : '' }}
         </router-link>
     </div>
 
@@ -43,18 +43,18 @@
 
 <script>
 import { computed, reactive } from 'vue'
-import firebase from 'firebase/app'
 import { useRouter, useRoute } from 'vue-router';
-import 'firebase/auth'
+import { useStore } from 'vuex';
 
 export default {
-    props: ['showLinks', 'user', 'uid', 'authorised', 'loaded'],
+    props: ['showLinks', 'signedIn', 'loaded'],
     
-	setup(props) {
+	setup() {
 		const router = useRouter();
+        const store = useStore();
 		const route = useRoute();
 		const state = reactive({
-			links: ['About', 'Account', 'Home', 'Library', 'Login', 'Register', 'Test']
+			links: ['About', 'Account', 'Home', 'Library', 'Login', 'Register',]
 		});
 
         const urlPath = computed(()=>{
@@ -62,27 +62,21 @@ export default {
         })
 
         function output() {
-            console.log(`UID: ${props.uid}`);
-            console.log(`Authorised: ${props.authorised}`);
+            console.log(`output`);
         }
 
         function signOut() {
-            firebase
-                .auth()
-                .signOut()
-                .then(() => {
-                    router.replace('/')
-                })
-                .catch(() => {
-                    router.replace('/')
-                });
+            localStorage.token = null;
+            localStorage.user = null;
+            store.dispatch('LOG_OUT');
+            router.replace('/');
         }
 
 		return {
             state,
             signOut,
             urlPath,
-            output
+            output,
 		}
 	}
 }
