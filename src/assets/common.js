@@ -4,7 +4,7 @@ export const CommonUtility = {
     },
     config: {
         api: {
-            BASE_URL: "https://test-designer-api.herokuapp.com"
+            BASE_URL: "https://test-designer-backend.herokuapp.com"
         }
     }
 }

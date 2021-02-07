@@ -162,7 +162,6 @@ export default {
                 }
                 state.errors.push(errorCode);
             }
-
         }
 
         async function callback(data, err) {
