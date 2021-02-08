@@ -158,7 +158,7 @@ export default {
             state.show = false;
             state.loading = true;
             
-            fetch( CommonUtility.config.api.BASE_URL + "/login", {
+            fetch(CommonUtility.config.api.BASE_URL + "/login", {
                 method: 'post',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({

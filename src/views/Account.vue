@@ -8,55 +8,40 @@
             <p class='form-message error' v-for="(error, index) in state.errors" :key='index'>{{error}}</p>
         </div>
 
-        <div v-on:click="expand" panelName="preferences" class="panel expandable preferences-panel" :expanded='state.expanded.preferences ? true : false'>
+
+        <div id='preferences' v-on:click="expand" panelName="preferences" class="panel expandable preferences-panel">
             <h4>Peferences<em>click to expand</em></h4>
             <div class="panel-container__contents-wrapper">
 
                 <p class='form-message error' style='margin-bottom: 2rem;'>Key features are still in development and are likely unstable.</p>
-                <div v-for="(setting, index) in state.preferences" :key='index' class="config-list-item" pre='preferences' :setting='setting.SettingKey'>
-                    <label>{{camelCaseToSentanceCase(setting.SettingKey)}}</label>
+                <div v-for="(preference, index) in state.preferences" :key='index' class="config-list-item">
+                    <label>{{preference.title}}</label>
                     <div class='input'>
-                        <input type="text" :value="setting.Value" :checked='setting.Value'>
+                        <input :type='preference.data' :value="preference.value" :checked="preference.value" :id="preference.key">
                     </div>
                 </div>
 
                 <div class="buttons">
-                    <button class='button button-secondary' @click.prevent="e => updatePreferences(e, 'preferences')">Save</button>
+                    <button class='button button-secondary' :disabled='state.loading' @click="submitPreferences">Save</button>
                     <div :class='{ "hidden": !state.loading }' class="space-xxl spinner spinner-xs"></div>
                 </div>
             </div>
         </div>
 
 
-        <div v-on:click="expand" panelName="personalDetails" class="panel expandable details-panel" :expanded='state.expanded.personalDetails ? true : false'>
+        <div id='personaldetails' v-on:click="expand" panelName="personalDetails" class="panel expandable details-panel">
             <h4>Personal Details<em>click to expand</em></h4>
             <div class="panel-container__contents-wrapper">
                 <p class='form-message error' style='margin-bottom: 2rem;'>Key features are still in development and are likely unstable.</p>
-                <div v-for="(setting, index) in state.personal" :key='index' class="config-list-item" pre='personal' :setting='setting.SettingKey'>
-                    <label>{{camelCaseToSentanceCase(setting.SettingKey)}}</label>
+                <div v-for="(preference, index) in state.personal" :key='index' class="config-list-item">
+                    <label>{{preference.title}}</label>
                     <div class='input'>
-                        <input type="text" :value="setting.Value" :disabled='setting.SettingKey === "email"'>
+                        <input type="text" :value="preference.value" :disabled='preference.key == "email"' :id='preference.key'>
                     </div>
                 </div>
                 <div class="buttons">
-                    <button class='button button-secondary' @click.prevent="e => updatePreferences(e, 'personal')">Save</button>
-                </div>
-            </div>
-        </div>
-
-
-        <div v-on:click="expand" v-if="!isEmpty(state.admin)" panelName="adminControls" class="panel expandable admin-panel" :expanded='state.expanded.adminControls ? true : false'>
-            <h4>Admin Controls<em>click to expand</em></h4>
-            <div class="panel-container__contents-wrapper">
-                <p class='form-message error' style='margin-bottom: 2rem;'>Key features are still in development and are likely unstable.</p>
-                <div v-for="(setting, index) in state.admin" :key='index' class="config-list-item" pre='admin' :setting='setting.SettingKey'>
-                    <label>{{camelCaseToSentanceCase(setting.SettingKey)}}</label>
-                    <div class='input'>
-                        <input :type=" (['true', 'false'].includes(setting.Value)) ? 'text' : 'checkbox'" :value="setting.Value" :checked='setting.Value'>
-                    </div>
-                </div>
-                <div class="buttons">
-                    <button class='button button-secondary' @click.prevent="e => updatePreferences(e, 'admin')">Save</button>
+                    <button class='button disabled button-secondary' :disabled='state.loading' @click="submitDetails">Save</button>
+                    <div :class='{ "hidden": !state.loading }' class="space-xxl spinner spinner-xs"></div>
                 </div>
             </div>
         </div>
@@ -68,208 +53,190 @@
 <script>
 import { onMounted, reactive } from 'vue';
 import { CommonUtility } from '../assets/common';
-import { locale } from '../assets/responses';
 
-export default {
-    methods: {
-        camelCaseToSentanceCase: function(text) {
-            var result = text.replace( /([A-Z])/g, " $1" );
+export default {   
+    name: "Account Page",
+    setup() {
+        const uiWaitTime = 500;
+        const state = reactive({
+
+            // UI driving variables
+            errors: [],
+            loading: false,
+            expanded: false,
+
+            // Object for preference population.
+            preferences: [],
+            personal: []
+            
+        });
+
+        async function updateStateWithNewValues() {
+            // Array of objects containing title data value and key
+            let mutatedState = [];
+            
+            state.preferences.forEach((prefObj) => {
+                const element = document.getElementById(prefObj.key);
+                const isCheckbox = (prefObj.data == "checkbox");
+                const value = isCheckbox? element.checked : (element ? element.value : prefObj.value);
+                mutatedState.push({
+                    key: prefObj.key,
+                    title: prefObj.title,
+                    data:  prefObj.data,
+                    value: value
+                })
+            });
+
+            state.preferences = mutatedState;
+        }
+
+        async function updateStateWithNewValuesPersonalDetails() {
+            // Array of objects containing title data value and key
+            let mutatedState = [];
+            
+            state.personal.forEach(async (prefObj) => {
+                const element = document.getElementById(prefObj.key);
+                const isCheckbox = (prefObj.data == "checkbox");
+                const amendedValue = isCheckbox? element.checked : (element ? element.value : prefObj.value);
+
+                mutatedState.push({
+                    key: prefObj.key,
+                    title: prefObj.title,
+                    value: amendedValue
+                })
+            });
+
+            state.personal = mutatedState;
+        }
+
+        async function submitDetails() {
+
+            if (state.loading) return;
+            state.loading = true;
+
+            await updateStateWithNewValuesPersonalDetails()
+
+            const res = await fetch(CommonUtility.config.api.BASE_URL + "/preferences/me", {
+                method: 'post',
+                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.token },
+                body: JSON.stringify(state.personal)
+            });
+
+            if (!res.ok) {
+                state.errors = [res.statusText];
+            }
+
+            setTimeout(() => {state.loading = false}, uiWaitTime);
+            
+        }
+
+        async function submitPreferences() {
+
+            if (state.loading) return;
+            state.loading = true;
+
+            await updateStateWithNewValues();
+
+            const res = await fetch(CommonUtility.config.api.BASE_URL + "/preferences", {
+                method: 'post',
+                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.token },
+                body: JSON.stringify(state.preferences)
+            });
+
+            if (!res.ok) {
+                state.errors = [res.statusText];
+            }
+
+            setTimeout(() => { state.loading = false}, uiWaitTime);
+
+        }
+
+        async function populatePreferences() {
+            const res = await fetch(CommonUtility.config.api.BASE_URL + "/preferences", {
+                method: 'get',
+                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.token }
+            });
+
+            if (!res.ok) {
+                state.errors.push(res.statusText);
+                return;
+            }
+
+            const json = await res.json();
+
+            Object.keys(json).forEach((key) => {
+                let value = json[key];
+                if (typeof(value) === 'object'){
+                    value.key = key;
+                    state.preferences.push(value);
+                } 
+            });
+        }
+
+        async function toSentanceCase(str) {
+            var result = str.replace( /([A-Z])/g, " $1" );
             var finalResult = result.charAt(0).toUpperCase() + result.slice(1);
             return finalResult
-        },
-        isEmpty: function(obj) {
-            for(var prop in obj) {
-                // eslint-disable-next-line no-prototype-builtins
-                if(obj.hasOwnProperty(prop)) {
-                return false;
-                }
-            }
-        return JSON.stringify(obj) === JSON.stringify({});
-        }
-    },
-    
-    setup() {
-        const state = reactive({
-            expanded: {
-                preferences: false,
-                personalDetails: false,
-                adminControls: false
-            },
-            errors: [],
-            loading: true,
-
-            preferences: {},
-            admin: {},
-            personal: {}
-            
-        })
-
-        function expand(e) {
-            let element = e.target.closest('.panel');
-            let panelName = element.getAttribute('panelName');
-            if (!state.expanded[panelName]) {
-                state.expanded[panelName] = true;
-            }
-        }
-    
-        function close(tab, e) {
-            let element = e.target.closest('.panel');
-            state.expanded[tab] = false;
-            element.setAttribute('expanded', false);
         }
 
-        function populatePreferences(preferences, admin) {
-            state.preferences = {
-                ...state.preferences,
-                 ...preferences
-                 };
-            state.admin = {
-                ...state.admin,
-                ...admin
-                };
-        }
+        async function populatePersonal() {
 
-        function populatePersonal(personal) {
-                state.personal = {
-                ...state.personal,
-                ...personal
-            }
-        }
-
-        async function personalDetailsCallback(data, err) {
-            if (!err) {
-                let responseJson = await data.json();
-                let personal = []
-
-                Object.keys(responseJson).forEach(key => {
-                    if (!key.startsWith("_", 0)) {
-                        personal.push(
-                            {
-                                "SettingKey": key,
-                                "Value": responseJson[key]
-                            }
-                        )
-                    }
-                });
-                populatePersonal(personal)
-
-            } else  {
-                let errorCode = locale.en.default;
-                if (data.status == 400) {
-                    errorCode = await data.text()
-                } else {
-                    errorCode = locale.en[data.status] ? locale.en[data.status] : data.statusText
-                }
-                state.errors.push(errorCode);
-            }
-        }
-
-        async function callback(data, err) {
-            if (!err) {
-                let responseJson = await data.json();
-                let pref = [];
-                let admin = [];
-
-                Object.keys(responseJson).forEach(key => {
-                    if (key.startsWith("preferences_", 0)) {
-                        pref.push(
-                            {
-                                "SettingKey": key.replace('preferences_', ''),
-                                "Value": responseJson[key]
-                            }
-                        )
-                    }
-                    if (key.startsWith("admin_", 0)) {
-                        admin.push(
-                            {
-                                "SettingKey": key.replace('admin_', ''),
-                                "Value": responseJson[key]
-                            }
-                        )
-                    }
-                });
-
-                populatePreferences(pref, admin);
-
-            } else  {
-                let errorCode = locale.en.default;
-                if (data.status == 400) {
-                    errorCode = await data.text()
-                } else {
-                    errorCode = locale.en[data.status] ? locale.en[data.status] : data.statusText
-                }
-                state.errors.push(errorCode);
-            }
-
-        }
-
-        async function getPreferencesFromAPI() {
-            
-
-            // Fetch preferences
-            fetch(CommonUtility.config.api.BASE_URL + '/preferences', {
+            const res = await fetch(CommonUtility.config.api.BASE_URL + "/users/me", {
                 method: 'get',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.token}
-            })
-            .then(data => callback(data, !data.ok))
-            .catch(err => callback(err, true));
+                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.token }
+            });
 
-            // Fetch personal details
-            const result = await fetch(CommonUtility.config.api.BASE_URL + '/users/me', {
-                method: 'get',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.token}
-            })
+            if (!res.ok) {
+                state.errors.push(res.statusText);
+                return;
+            }
 
-            personalDetailsCallback(result, !result.ok);
+            const json = await res.json();
+
+            Object.keys(json).forEach(async (key) => {
+                let value = json[key];
+                if (!key.startsWith('_')){
+                    let listItem = {
+                        title: await toSentanceCase(key),
+                        key: key,
+                        value: value
+                    } 
+                    state.personal.push(listItem);
+                } 
+            });
         }
 
         onMounted(() => {
-            getPreferencesFromAPI()
-        });
+            populatePreferences();
+            populatePersonal();
+        })
 
-        async function updatePreferences(event, catagory) {
-            state.loading = true;
-            const inputs = document.querySelectorAll(`.config-list-item[pre=${catagory}]`);
-
-            let payload = {
-                type: catagory
-            };
-
-            inputs.forEach(element => {
-                let settingName = element.getAttribute('setting');
-                payload[ (payload.type == 'personal' ? '' : (catagory + "_"))+ settingName] = element.querySelector('input').value
-            });
-
-            // Update preferences
-            await fetch(CommonUtility.config.api.BASE_URL + '/preferences', {
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.token 
-                    },
-                body: JSON.stringify(payload)
-            });
-
-            location.reload();
-
+        async function expand(e) {
+            let target = await e.target ? e.target : e;
+            let element = target.closest('.panel');
+            element.setAttribute('expanded', true);
         }
+    
+        async function close(tab, e) {
+            let target = e.target ? e.target : e;
+            let element = target.closest('.panel');
+            element.removeAttribute('expanded')
+        }
+
 
         return {
             expand,
             state,
             close,
-            updatePreferences
+            submitPreferences,
+            submitDetails
         }
     }
 }
 </script>
 
 
-<style lang="scss" scoped>
+<style lang="scss">
 
 .panel-container {
     display: flex;
