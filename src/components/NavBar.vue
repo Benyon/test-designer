@@ -6,8 +6,10 @@
                     <router-link class='link' :to="{name: 'Home'}">
                         <span class="title">Test Designer</span>
                     </router-link>
+                    <router-link v-if='signedIn' class='link' :to="{name: 'Library'}">
+                        <button class="button-secondary button-border">My Library</button>
+                    </router-link>
                 </div>
-                <button class='debug' style='margin-left: 15px;' @click='output'>⚙️</button>
                 <div class="navbar__buttons">
                     <div v-if='loaded' class="wrapper">
                         <div v-if='!signedIn' class="not-logged-in">
@@ -27,6 +29,7 @@
                                 <button type='button' class='button-secondary button-border' @click.prevent='signOut'>Sign Out</button>
                             </a>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -84,6 +87,7 @@ export default {
 
 button.debug{
     opacity: 0;
+
     &:hover{
         opacity: 1!important;
     }
@@ -112,11 +116,14 @@ button.debug{
                 margin: 0px 5px;
             }
         }
-
         a {
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 600;
             text-decoration: none;
+
+            span.title {
+                margin-right: 15px;
+            }
         }
     }
 }

@@ -6,6 +6,9 @@
         </router-link>
         <input v-if="state.testName!=null" type='text' class='title' :value='state.testName'/>
     </div>
+    <div class="description">
+    <p style='margin-top: 25px'>{{state.testDesc}}</p>
+    </div>
   </div>
 </template>
 
