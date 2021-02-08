@@ -6,9 +6,8 @@ export const CommonUtility = {
     
     config: {
         api: { // Localhost NEEDS to be HTTP not HTTPs or you'll get issues.
-            BASE_URL: "http://localhost:3000"
+            BASE_URL: "https://test-designer-api.herokuapp.com/"
             // "https://test-designer-backend.herokuapp.com"
-            // "localhost:3000"
         }
     }
 
