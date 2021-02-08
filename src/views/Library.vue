@@ -2,22 +2,25 @@
   <div v-if='state.loaded' class="library">
     <div class="header-container">
         <h1>My Library</h1>
-        <button class='button button-secondary'>Create New Test</button>   
+        <div class="new-test-wrapper">
+            <button v-on:click="createNewTest" class='button button-secondary'>Create New Test</button>
+            <div :class='{ "hidden": !state.spinner }' class="space-xxl spinner spinner-xs"></div> 
+        </div>
     </div>
 
-    <div v-if='state.testCatagories.length===0' class="no-tests">
+    <p class='form-message error' v-for="(error, index) in state.errors" :key="index">{{error}}</p>
+    <div v-if='catagoriesEmpty' class="no-tests">
         <p style='margin-top: 25px'>It looks like there's nothing here, create a new test to get started!</p>
     </div>
 
-    <div class='catagory-container' v-for='(catagory) in state.testCatagories' :key='catagory.catId' :catagory-id=" 'catagory' + catagory.catId ">
+    <div class='catagory-container' v-for='(catagory, index) in state.testCatagories' :key='index'>
         <div v-if="catagory.tests.length > 0" class="catagory-wrapper">
             <span class='catagory-header'> 
-                <h3>{{catagory.catName}}</h3>
+                <h3>{{catagory.name}}</h3>
             </span>
 
             <div v-if='catagory.tests.length>0' class="tests-container">
- 
-                <router-link :d='test.id' class="test-item" v-for='(test, index) in catagory.tests' :key="index" :to="{ name: 'Test', params: { testId: test.id }}">
+                <router-link class="test-item" v-for='(test, index) in catagory.tests' :key="index" :to="{ name: 'Test', params: { testId: test.id }} ">
                     <strong>{{ test.name }}</strong>
                 </router-link>
 
@@ -29,23 +32,87 @@
 </template>
 
 <script>
-import { onMounted, reactive } from 'vue'
-import { API } from '../assets/fakeAPI'
+import { computed, onMounted, reactive } from 'vue'
+import { CommonUtility } from '../assets/common'
+import { useRouter } from 'vue-router'
 
 export default {
     setup() {
+        const router = useRouter();
         const state = reactive({
-            testCatagories: [],
-            loaded: false
+            testCatagories: {},
+            errors: [],
+            loaded: false,
+            spinner: false
         })
 
-        onMounted(() => {
-            state.testCatagories = API.library.tests.catagories;    // Returns array of objects
+        const catagoriesEmpty = computed(() => {
+            return Object.keys(state.testCatagories).length === 0;
+        })
+
+        async function createNewTest() {
+            state.errors = [];
+            state.spinner = true;
+            const response = await fetch(CommonUtility.config.api.BASE_URL + "/tests/create", {
+                method: "post",
+                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.token },
+                body: JSON.stringify({
+                    "name": "New Test",
+                    "description": ""
+                })
+            })
+
+            if (!response.ok) {
+                state.errors.push(await response.text());
+            }
+
+            const json = await response.json()
+
+            if (json.success) { 
+                console.log(`/test/${json.id}`)
+                router.replace(`/test/${json.id}`)
+            } else {
+                state.errors = ["There's been an error creating your test."]
+            }
+        }
+
+        onMounted(async () => {
+            const response = await fetch(CommonUtility.config.api.BASE_URL + "/library", {
+                method: "get",
+                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.token }
+            });
+
+            if (!response.ok) {
+                state.errors.push(response.statusText);
+            }
+        
+            const json = await response.json();
+
+            json.forEach(obj => {
+                const catagoryName = String(obj.catagory).trim() == "" ? "No Catagory" : obj.catagory;
+                const testId = obj.testId;
+                const testName = obj.name;
+
+                // Create new if it doesn't exist.
+                if (!state.testCatagories[catagoryName]) {
+                    state.testCatagories[catagoryName] = {
+                        name: catagoryName,
+                        tests: []
+                    }
+                }
+
+                state.testCatagories[catagoryName].tests.push({
+                    id: testId,
+                    name: testName
+                })
+            });
             state.loaded = true;
         })
 
         return {
-            state
+            state,
+            catagoriesEmpty,
+            createNewTest
         }
     }
 }
@@ -62,6 +129,15 @@ a {
 
     button {
         margin: 5px 0px 10px 25px;
+    }
+}
+
+.new-test-wrapper {
+    display: flex;
+
+    .spinner {
+        transition: all 0.5s;
+        margin-top: -7px;
     }
 }
 

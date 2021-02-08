@@ -88,7 +88,7 @@ const routes = [
 
 async function getAuthorised() {
     
-    if (localStorage.token != 'null') {
+    if (localStorage.token != 'null' && localStorage.token != null) {
 
         const result = await fetch(CommonUtility.config.api.BASE_URL + '/users/me', {
             method: 'get',

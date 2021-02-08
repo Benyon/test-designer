@@ -1,6 +1,9 @@
 import { createStore } from 'vuex'
+import { CommonUtility } from '../assets/common';
+import router from '../router'
 
 export default createStore({
+
     state: {
         loggedIn: false
     },
@@ -12,7 +15,19 @@ export default createStore({
         },
 
         logOut(state) {
+
+            // Fetch
+            fetch(CommonUtility.config.api.BASE_URL + "/users/logout", { method: "get" })
+
+            // Set store variables to false
             state.loggedIn = false;
+
+            // Set storage variables to null
+            localStorage.token = null
+            localStorage.user = null
+            
+            // Redirect
+            router.push('/');
         }
 
     },

@@ -4,15 +4,15 @@
         <router-link :to='{name: "Library"}'>
             <button class='button button-secondary'>Go Back</button>   
         </router-link>
-        <input v-if="state.name!=null" type='text' class='title' :value='state.name'/>
+        <input v-if="state.testName!=null" type='text' class='title' :value='state.testName'/>
     </div>
   </div>
 </template>
 
 <script>
-import { computed, onBeforeMount, reactive } from 'vue';
+import { onBeforeMount, reactive } from 'vue';
 import { useRoute } from 'vue-router'
-import { API } from '../assets/fakeAPI'
+import { CommonUtility } from '../assets/common';
 
 export default {
     props: ['user'],
@@ -20,32 +20,31 @@ export default {
     setup() {
         const route = useRoute();
         const state = reactive({
-            name: testName,
-            testId: 0
+            errors: [],
+            testId: 0,
+            testName: "Loading Test...",
+            testDesc: "Loading Description..."
         });
 
-        const testName = computed(() => {
-            let nameReturned = null;
-
-            API.library.tests.catagories.forEach(catagory => {
-                catagory.tests.forEach(test => {
-                    if (test.id == state.testId) {
-                        nameReturned = test.name;
-                    }
-                })
+        async function pullDownTestInformation() {
+            state.errors = []
+            const response = await fetch(`${CommonUtility.config.api.BASE_URL}/test?id=${state.testId}`, {
+                method: "get",
+                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.token },
             });
 
-            if (nameReturned) {
-                return nameReturned;
+            if (!response.ok) {
+                state.errors.push(await response.text());
             }
 
-            return 'Sorry';
-        })
-
+            const json = await response.json();
+            state.testName = json.name;
+            state.testDesc = json.description;
+        }
 
         onBeforeMount(() => {
             state.testId = route.params.testId;
-            state.name = testName;
+            pullDownTestInformation();
         })
 
         return {

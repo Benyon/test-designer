@@ -66,8 +66,6 @@ export default {
         }
 
         function signOut() {
-            localStorage.token = null;
-            localStorage.user = null;
             store.dispatch('LOG_OUT');
             router.replace('/');
         }

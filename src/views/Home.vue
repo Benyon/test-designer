@@ -2,7 +2,7 @@
   <div class="home">
     <img style='width: 25%' src='~@/assets/images/under-construction.png'>
     <h1>We are currently in development.</h1>
-    <p class='slim'>Test Designer an interactive UI component to be used before intergrating any automated tests</p>
+    <p class='slim'>Test Designer is an interactive UI component to be used before intergrating any automated tests</p>
     <div v-if='!signedIn' class="cta">
         <router-link :to="{name: 'Login'}">
             <button type='button' class="button button-primary">Login</button>

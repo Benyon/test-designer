@@ -21,8 +21,7 @@ export default {
 		const state = reactive({
             showLinks: false,
             signedIn: false,
-            loaded: false,
-            pls: null
+            loaded: false
         })
 
         function delayLoad() {

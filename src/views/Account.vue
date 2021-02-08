@@ -236,7 +236,7 @@ export default {
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 .panel-container {
     display: flex;
@@ -308,10 +308,6 @@ export default {
                 align-items: center;
 
                 div.spinner {
-
-                    &.hidden {
-                        opacity: 0;
-                    }
 
                     transition: all 0.2s;
                     margin-left: -15px
