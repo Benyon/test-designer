@@ -115,7 +115,7 @@ export default {
 
         function validateFields() {
            document.querySelectorAll('*[validate]').forEach(element => {
-                if (element.value.length===0) {
+                if (element.value.length<3) {
                     setValidationError(element);
                 }
                 if (element.getAttribute('type') === 'email' && !RegexMatches.emailRegex.test(state.email)) {

@@ -86,9 +86,9 @@ const routes = [
 	}
 ]
 
-async function getAuthorised() {
+async function getAuthorised(tokenExists) {
     
-    if (localStorage.token != 'null' && localStorage.token != null) {
+    if (tokenExists) {
 
         const result = await fetch(CommonUtility.config.api.BASE_URL + '/users/me', {
             method: 'get',
@@ -120,10 +120,14 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
 
-    const user = await getAuthorised();
-    if (!user.authorised) {
-        localStorage.token = null;
+    const tokenExists = (localStorage.token != 'null' && localStorage.token != null)
+    const user = await getAuthorised(tokenExists);
+
+    if (!user.authorised && tokenExists) { 
+        console.log("dispatching")
+        store.dispatch('LOG_OUT')
     }
+
 
 	const listOfPages = routes.map(val => val.path.split('/:')[0])
 	const toPath = CommonUtility.urlTrim(to.path)

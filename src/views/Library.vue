@@ -69,7 +69,6 @@ export default {
             const json = await response.json()
 
             if (json.success) { 
-                console.log(`/test/${json.id}`)
                 router.replace(`/test/${json.id}`)
             } else {
                 state.errors = ["There's been an error creating your test."]
