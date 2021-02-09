@@ -83,7 +83,11 @@ export default {
         function setValidationError(element) {
             state.validationError = true;
             element.classList.add('error');
-            element.parentElement.querySelector('label').classList.add('error');
+
+            const elementLabel = element.parentElement.querySelector('label');
+            if (!elementLabel) {
+                elementLabel.classList.add('error');
+            }
         }
 
         async function authorisationCallback(data, err = false) {
