@@ -84,9 +84,8 @@ export default {
             state.validationError = true;
             element.classList.add('error');
 
-            const elementLabel = element.parentElement.querySelector('label');
-            if (!elementLabel) {
-                elementLabel.classList.add('error');
+            if (element.getAttribute("type") != 'checkbox') {
+                element.parentElement.querySelector('label').classList.add('error');
             }
         }
 
