@@ -83,7 +83,6 @@ export default {
         function setValidationError(element) {
             state.validationError = true;
             element.classList.add('error');
-
             if (element.getAttribute("type") != 'checkbox') {
                 element.parentElement.querySelector('label').classList.add('error');
             }
@@ -117,8 +116,9 @@ export default {
 
 
         function validateFields() {
+
            document.querySelectorAll('*[validate]').forEach(element => {
-                if (element.value.length<3) {
+                if (element.getAttribute("type")!="checkbox" && element.value.length<3) {
                     setValidationError(element);
                 }
                 if (element.getAttribute('type') === 'email' && !RegexMatches.emailRegex.test(state.email)) {

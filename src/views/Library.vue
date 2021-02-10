@@ -64,6 +64,7 @@ export default {
 
             if (!response.ok) {
                 state.errors.push(await response.text());
+                return
             }
 
             const json = await response.json()
